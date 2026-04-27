@@ -60,10 +60,24 @@ function createStubRedis(): RedisLike {
   };
 }
 
-export const redis: RedisLike =
+const upstashConfigured = Boolean(
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-    ? (Redis.fromEnv() as unknown as RedisLike)
-    : createStubRedis();
+);
+
+export const redis: RedisLike = upstashConfigured
+  ? (Redis.fromEnv() as unknown as RedisLike)
+  : createStubRedis();
+
+/**
+ * When `true`, the app is running on the in-memory stub (no real Upstash
+ * connection). Consumers of `withCache` can use this to bypass caching so
+ * they always reflect the latest DB state — the stub lives inside a single
+ * Node.js process, has no cross-request TTL observability, and can keep
+ * serving stale data for up to `CACHE_TTL.DASHBOARD` seconds even after a
+ * `revalidatePath`/`router.refresh()` when the underlying process held onto
+ * the write-through cache across hot-reloads.
+ */
+export const isCacheEnabled = upstashConfigured;
 
 /* -------------------------------------------------------------------------- */
 /*                          High-level cache helpers                           */
@@ -101,6 +115,11 @@ export async function withCache<T>(
   ttlSeconds: number,
   fetcher: () => Promise<T>
 ): Promise<T> {
+  // Without a real Redis backing store, caching does more harm than good:
+  // in-memory state can outlive invalidation calls across hot-reloads and
+  // cause the UI to show stale dashboards. Always go straight to the DB.
+  if (!isCacheEnabled) return fetcher();
+
   try {
     const cached = await redis.get<T>(key);
     if (cached !== null && cached !== undefined) return cached as T;

@@ -96,12 +96,17 @@ async function invalidateBudgets(userId: string): Promise<void> {
   await invalidateCache([cacheKey.budgets(userId), cacheKey.dashboard(userId)]);
 }
 
+// Budgets are scoped to `app_users._id` (== user.appUserId), the same id
+// Transactions are written against, so aggregations on spent-vs-limit line up.
+// Using user.id (the NextAuth adapter id from the `users` collection) here
+// would point at a different ObjectId and silently return empty results.
+
 export async function createBudget(
   _prev: BudgetActionResult | undefined,
   formData: FormData
 ): Promise<BudgetActionResult> {
   const user = await requireUser();
-  const userObjectId = toUserObjectId(user.id);
+  const userObjectId = toUserObjectId(user.appUserId);
   if (!userObjectId) return { ok: false, error: "Invalid session. Sign in again." };
 
   const parsed = parseFormData(formData);
@@ -109,7 +114,7 @@ export async function createBudget(
 
   await connectToDatabase();
   await Budget.create({ ...parsed, user: userObjectId });
-  await invalidateBudgets(user.id);
+  await invalidateBudgets(user.appUserId);
 
   revalidatePath("/dashboard/budgets");
   revalidatePath("/dashboard");
@@ -122,7 +127,7 @@ export async function updateBudget(
   formData: FormData
 ): Promise<BudgetActionResult> {
   const user = await requireUser();
-  const userObjectId = toUserObjectId(user.id);
+  const userObjectId = toUserObjectId(user.appUserId);
   if (!userObjectId) return { ok: false, error: "Invalid session. Sign in again." };
   if (!mongoose.isValidObjectId(id)) {
     return { ok: false, error: "That budget no longer exists." };
@@ -141,7 +146,7 @@ export async function updateBudget(
     return { ok: false, error: "That budget no longer exists." };
   }
 
-  await invalidateBudgets(user.id);
+  await invalidateBudgets(user.appUserId);
   revalidatePath("/dashboard/budgets");
   revalidatePath("/dashboard");
   return { ok: true };
@@ -149,13 +154,13 @@ export async function updateBudget(
 
 export async function deleteBudget(id: string): Promise<BudgetActionResult> {
   const user = await requireUser();
-  const userObjectId = toUserObjectId(user.id);
+  const userObjectId = toUserObjectId(user.appUserId);
   if (!userObjectId) return { ok: false, error: "Invalid session." };
   if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Unknown budget." };
 
   await connectToDatabase();
   await Budget.deleteOne({ _id: id, user: userObjectId });
-  await invalidateBudgets(user.id);
+  await invalidateBudgets(user.appUserId);
 
   revalidatePath("/dashboard/budgets");
   revalidatePath("/dashboard");
@@ -167,7 +172,7 @@ export async function setBudgetArchived(
   archived: boolean
 ): Promise<BudgetActionResult> {
   const user = await requireUser();
-  const userObjectId = toUserObjectId(user.id);
+  const userObjectId = toUserObjectId(user.appUserId);
   if (!userObjectId) return { ok: false, error: "Invalid session." };
   if (!mongoose.isValidObjectId(id)) return { ok: false, error: "Unknown budget." };
 
@@ -176,7 +181,7 @@ export async function setBudgetArchived(
     { _id: id, user: userObjectId },
     { $set: { archived } }
   );
-  await invalidateBudgets(user.id);
+  await invalidateBudgets(user.appUserId);
 
   revalidatePath("/dashboard/budgets");
   return { ok: true };

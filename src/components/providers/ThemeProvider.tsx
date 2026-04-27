@@ -27,7 +27,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
  * flash-of-wrong-theme on first paint.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("dark");
 
   // Sync in-memory state with whatever the boot script decided.
   useEffect(() => {

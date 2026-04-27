@@ -82,18 +82,12 @@ export default async function Home() {
           A modern PWA expense tracker with AI-powered entry, receipt OCR,
           subscription detection, and a chat-with-your-data assistant.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <div className="mt-8 flex items-center justify-center">
           <Link
             href="/login"
             className="rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white shadow-lg shadow-brand-600/30 transition hover:bg-brand-700"
           >
             Get started
-          </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            View dashboard
           </Link>
         </div>
       </section>

@@ -1,7 +1,22 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { auth, signIn, signOut } from "@/lib/auth/config";
 import { invalidateUserProfile } from "@/lib/auth/user-profile";
+
+/**
+ * Next.js throws objects of shape `{ digest: "NEXT_REDIRECT;..." }` when
+ * `redirect()` or `signIn()` want to redirect. We must NOT swallow those.
+ */
+function isNextRedirectError(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "digest" in err &&
+    typeof (err as { digest?: unknown }).digest === "string" &&
+    (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+  );
+}
 
 /**
  * Server Actions for auth. Colocated so client components can bind them
@@ -19,7 +34,26 @@ function safeCallbackUrl(input: FormDataEntryValue | null): string {
 
 export async function signInWithProvider(provider: Provider, formData: FormData) {
   const redirectTo = safeCallbackUrl(formData.get("callbackUrl"));
-  await signIn(provider, { redirectTo });
+  try {
+    await signIn(provider, { redirectTo });
+  } catch (err) {
+    // `signIn` throws a NEXT_REDIRECT on success — bubble it so Next.js can
+    // forward the browser to the provider's authorize URL.
+    if (isNextRedirectError(err)) throw err;
+    // Otherwise it's a real failure (bad provider config, network error,
+    // etc). Log it so the dev terminal shows the actual cause, then send
+    // the user back to /login with a visible error code instead of silently
+    // landing them on "/" (the default Auth.js safe-origin fallback).
+    const code =
+      err instanceof Error && "type" in err
+        ? (err as { type?: string }).type
+        : err instanceof Error
+          ? err.name
+          : "SignInError";
+    // eslint-disable-next-line no-console
+    console.error(`[auth] signIn(${provider}) failed:`, code, err);
+    redirect(`/login?error=${encodeURIComponent(String(code))}`);
+  }
 }
 
 export async function signInWithGoogle(formData: FormData) {

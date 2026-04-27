@@ -35,17 +35,17 @@ export const viewport: Viewport = {
 
 // Injected into <head> so the theme class is set BEFORE React hydration,
 // preventing the classic "flash of wrong theme" on first paint.
-// Defaults to light unless the user has explicitly chosen "dark".
+// Defaults to dark unless the user has explicitly chosen "light".
 const themeInitScript = `
 (function () {
   try {
     var stored = localStorage.getItem('trackflow-theme');
-    var theme = stored === 'dark' ? 'dark' : 'light';
+    var theme = stored === 'light' ? 'light' : 'dark';
     document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.style.colorScheme = theme;
   } catch (e) {
-    document.documentElement.classList.remove('dark');
-    document.documentElement.style.colorScheme = 'light';
+    document.documentElement.classList.add('dark');
+    document.documentElement.style.colorScheme = 'dark';
   }
 })();
 `;
@@ -56,7 +56,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" style={{ colorScheme: "light" }} suppressHydrationWarning>
+    <html
+      lang="en"
+      className="dark"
+      style={{ colorScheme: "dark" }}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

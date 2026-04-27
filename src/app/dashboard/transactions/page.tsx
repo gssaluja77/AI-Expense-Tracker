@@ -2,6 +2,10 @@ import Link from "next/link";
 import {
   ArrowDownRight,
   ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   ReceiptText,
   Wallet,
 } from "lucide-react";
@@ -15,6 +19,7 @@ import {
 import { formatCurrency } from "@/lib/utils/format";
 import { TransactionsFilterBar } from "@/components/transactions/TransactionsFilterBar";
 import { TransactionsView } from "@/components/transactions/TransactionsView";
+import { DashboardNlpEntry } from "@/components/dashboard/DashboardNlpEntry";
 import type { TransactionType } from "@/types/transaction";
 
 export const metadata = { title: "Transactions · TrackFlow" };
@@ -134,6 +139,8 @@ export default async function TransactionsPage({
         </p>
       </header>
 
+      <DashboardNlpEntry baseCurrency={baseCurrency} />
+
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard
           icon={ReceiptText}
@@ -240,19 +247,68 @@ function Pagination({
 }) {
   const canPrev = page > 1;
   const canNext = page < pageCount;
+  // Hide the jump-to-edge buttons when they'd be a no-op adjacent to Prev/Next
+  // (e.g. already on page 2 — "First" and "Previous" both go to page 1).
+  const showFirst = page > 2;
+  const showLast = page < pageCount - 1;
+
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-slate-500 dark:text-slate-400">
         Page <span className="font-semibold text-slate-800 dark:text-slate-200">{page}</span> of{" "}
         <span className="font-semibold text-slate-800 dark:text-slate-200">{pageCount}</span>
         <span className="hidden sm:inline"> · {total.toLocaleString()} total</span>
       </p>
-      <div className="flex items-center gap-2">
-        <PagerLink href={hrefForPage(page - 1)} disabled={!canPrev}>
-          Previous
+      <div className="flex flex-wrap items-center gap-1.5">
+        <PagerLink
+          href={hrefForPage(1)}
+          disabled={!canPrev}
+          aria-label="Jump to first page"
+          iconOnly
+        >
+          <ChevronsLeft className="h-4 w-4" />
+          <span className="hidden md:inline">First</span>
         </PagerLink>
-        <PagerLink href={hrefForPage(page + 1)} disabled={!canNext}>
-          Next
+        <PagerLink
+          href={hrefForPage(page - 1)}
+          disabled={!canPrev}
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="h-4 w-4 md:hidden" />
+          <span className="hidden md:inline">Previous</span>
+        </PagerLink>
+        {showFirst ? (
+          <span className="hidden px-1 text-slate-400 md:inline" aria-hidden>
+            …
+          </span>
+        ) : null}
+        <span
+          aria-current="page"
+          className="hidden rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 dark:bg-brand-950/50 dark:text-brand-300 md:inline"
+        >
+          {page}
+        </span>
+        {showLast ? (
+          <span className="hidden px-1 text-slate-400 md:inline" aria-hidden>
+            …
+          </span>
+        ) : null}
+        <PagerLink
+          href={hrefForPage(page + 1)}
+          disabled={!canNext}
+          aria-label="Next page"
+        >
+          <span className="hidden md:inline">Next</span>
+          <ChevronRight className="h-4 w-4 md:hidden" />
+        </PagerLink>
+        <PagerLink
+          href={hrefForPage(pageCount)}
+          disabled={!canNext}
+          aria-label="Jump to last page"
+          iconOnly
+        >
+          <span className="hidden md:inline">Last</span>
+          <ChevronsRight className="h-4 w-4" />
         </PagerLink>
       </div>
     </div>
@@ -263,14 +319,25 @@ function PagerLink({
   href,
   disabled,
   children,
+  "aria-label": ariaLabel,
+  iconOnly,
 }: {
   href: string;
   disabled?: boolean;
   children: React.ReactNode;
+  "aria-label"?: string;
+  iconOnly?: boolean;
 }) {
+  const base =
+    "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition";
+  const padding = iconOnly ? "md:px-2.5" : "";
   if (disabled) {
     return (
-      <span className="cursor-not-allowed rounded-lg border border-slate-200 px-3 py-1.5 text-slate-400 dark:border-slate-700 dark:text-slate-600">
+      <span
+        aria-label={ariaLabel}
+        aria-disabled="true"
+        className={`${base} ${padding} cursor-not-allowed border-slate-200 text-slate-400 dark:border-slate-800 dark:text-slate-600`}
+      >
         {children}
       </span>
     );
@@ -278,7 +345,8 @@ function PagerLink({
   return (
     <Link
       href={href}
-      className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+      aria-label={ariaLabel}
+      className={`${base} ${padding} border-slate-200 text-slate-700 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-brand-800 dark:hover:bg-brand-950/40 dark:hover:text-brand-200`}
     >
       {children}
     </Link>
