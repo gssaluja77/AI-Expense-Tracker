@@ -1,5 +1,16 @@
 import Link from "next/link";
-import { Sparkles, ScanText, Receipt, Repeat, MessageSquareText, Wallet } from "lucide-react";
+import { redirect } from "next/navigation";
+import {
+  Sparkles,
+  ScanText,
+  Receipt,
+  Repeat,
+  MessageSquareText,
+  Wallet,
+  Waves,
+} from "lucide-react";
+import { auth } from "@/lib/auth/config";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const features = [
   {
@@ -34,12 +45,35 @@ const features = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  if (session?.user) {
+    redirect("/dashboard");
+  }
+
   return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
-      <section className="text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">
-          AI-FinPilot
+    <main className="relative mx-auto max-w-6xl px-6 pb-16 pt-8">
+      <header className="flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-600/30">
+            <Waves className="h-5 w-5" />
+          </span>
+          <span className="text-lg tracking-tight">TrackFlow</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <Link
+            href="/login"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+          >
+            Sign in
+          </Link>
+        </div>
+      </header>
+
+      <section className="mt-16 text-center">
+        <p className="text-sm font-semibold uppercase tracking-widest text-brand-500">
+          TrackFlow
         </p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-6xl">
           Your expenses, on autopilot.

@@ -20,8 +20,23 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
+function createClientPromise() {
+  const p = new MongoClient(uri!, options).connect();
+  // Observe the rejection immediately so a bad URI at boot doesn't
+  // crash the entire Node process with an unhandledRejection. The
+  // adapter's own `await` on the promise will still receive the error.
+  p.catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error(
+      "[mongodb] initial MongoClient connection failed. " +
+        "Check MONGODB_URI. Original error:",
+      err?.message || err
+    );
+  });
+  return p;
+}
+
 const clientPromise: Promise<MongoClient> =
-  global._mongoClientPromise ??
-  (global._mongoClientPromise = new MongoClient(uri, options).connect());
+  global._mongoClientPromise ?? (global._mongoClientPromise = createClientPromise());
 
 export default clientPromise;

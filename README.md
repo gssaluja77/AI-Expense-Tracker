@@ -1,4 +1,4 @@
-# AI-FinPilot
+# TrackFlow
 
 An AI-powered, offline-capable PWA Expense Tracker. Built with Next.js 15 (App Router), TypeScript, Tailwind CSS, MongoDB Atlas, Upstash Redis, NextAuth v5 (Auth.js), and the Vercel AI SDK with Google Gemini 2.0 Flash.
 
@@ -21,10 +21,10 @@ An AI-powered, offline-capable PWA Expense Tracker. Built with Next.js 15 (App R
 
 - **Framework:** Next.js 15+ (App Router) + React 19
 - **Language:** TypeScript (strict)
-- **Styling:** Tailwind CSS (mobile-first, dark mode via `class`)
+- **Styling:** Tailwind CSS (mobile-first, dark mode via `class`, defaults to dark)
 - **Database:** MongoDB Atlas via Mongoose
 - **Cache:** Upstash Redis (serverless)
-- **Auth:** NextAuth v5 (Auth.js) — Google, Facebook, Apple
+- **Auth:** NextAuth v5 (Auth.js) — Google, Facebook
 - **AI:** Vercel AI SDK + `@ai-sdk/google` (Gemini 2.0 Flash)
 - **Icons:** Lucide React
 
@@ -49,13 +49,15 @@ Open [http://localhost:3000](http://localhost:3000).
 src/
 ├── app/                 # Next.js App Router routes
 │   ├── api/auth/[...nextauth]/  # NextAuth route handler
+│   ├── dashboard/               # Protected dashboard
+│   ├── login/                   # Social sign-in
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
 │   ├── layout/          # Sidebar (desktop) + BottomNav (mobile)
-│   └── providers/       # SessionProvider, ThemeProvider
+│   └── providers/       # ThemeProvider
 ├── lib/
-│   ├── auth/            # NextAuth v5 configuration
+│   ├── auth/            # NextAuth v5 configuration (edge-safe + node)
 │   ├── cache/           # Upstash Redis client + withCache helper
 │   ├── db/              # MongoDB (Mongoose) singleton connection
 │   ├── ai/              # Gemini client + prompts

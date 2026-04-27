@@ -1,9 +1,9 @@
-/* AI-FinPilot service worker (minimal placeholder).
+/* TrackFlow service worker (minimal placeholder).
  * A fuller implementation (runtime caching, Web Push handler) will be
  * layered in once the workbox pipeline is wired up.
  */
 
-const CACHE_NAME = "finpilot-v1";
+const CACHE_NAME = "trackflow-v1";
 const PRECACHE_URLS = ["/", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -42,7 +42,7 @@ self.addEventListener("push", (event) => {
       return {};
     }
   })();
-  const title = data.title || "AI-FinPilot";
+  const title = data.title || "TrackFlow";
   const options = {
     body: data.body || "",
     icon: "/icons/icon-192.png",

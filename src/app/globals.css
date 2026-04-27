@@ -10,8 +10,11 @@
 }
 
 .dark {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
+  /* Matches the softened Tailwind slate-950 override (#0b1220). Keeping the
+     raw <body> background and the dark:bg-slate-950 utility in sync avoids
+     a visible seam around any element that doesn't set its own bg. */
+  --background: 220 49% 9%;
+  --foreground: 214 32% 91%;
 }
 
 html,

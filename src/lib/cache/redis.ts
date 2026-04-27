@@ -82,6 +82,7 @@ export const CACHE_TTL = {
  * Namespaced cache key builder — avoids accidental collisions.
  */
 export const cacheKey = {
+  userProfile: (userId: string) => `user:${userId}:profile:v2`,
   dashboard: (userId: string) => `user:${userId}:dashboard`,
   categoryTotals: (userId: string, month: string) =>
     `user:${userId}:cat-totals:${month}`,

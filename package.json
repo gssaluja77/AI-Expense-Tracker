@@ -1,8 +1,8 @@
 {
-  "name": "ai-finpilot",
+  "name": "trackflow",
   "version": "0.1.0",
   "private": true,
-  "description": "AI-FinPilot - An AI-powered PWA expense tracker with NLP entry, receipt OCR, subscription detection, predictive bill alerts, RAG chat, and multi-currency support.",
+  "description": "TrackFlow - An AI-powered PWA expense tracker with NLP entry, receipt OCR, subscription detection, predictive bill alerts, RAG chat, and multi-currency support.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

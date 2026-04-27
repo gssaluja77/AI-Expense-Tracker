@@ -26,6 +26,7 @@ yarn-error.log*
 
 # env files
 .env
+.env.vercel
 .env*.local
 .env.local
 .env.development.local
@@ -45,3 +46,4 @@ next-env.d.ts
 *.swp
 
 ai-expense-tracker-prompt.md
+.env.vercel

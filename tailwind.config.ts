@@ -19,6 +19,16 @@ const config: Config = {
           900: "#19438f",
           950: "#102a5a",
         },
+        // Soften the darkest slate shades so dark mode backgrounds and text
+        // aren't at maximum contrast. Default Tailwind slate-950 is #020617
+        // (near-black) which is painfully crisp against near-white text.
+        // These overrides preserve the step between body / card / hover
+        // layers (950 → 900 → 800) while making the overall surface easier
+        // on the eyes. Light mode is unaffected (these shades aren't used
+        // as backgrounds there).
+        slate: {
+          950: "#0b1220",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
