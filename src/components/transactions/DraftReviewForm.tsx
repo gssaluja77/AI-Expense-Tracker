@@ -10,6 +10,10 @@ import type {
   DraftSource,
   DraftTransaction,
 } from "@/types/draft-transaction";
+import {
+  SUPPORTED_CURRENCIES,
+  normalizeCurrency,
+} from "@/lib/constants/currencies";
 
 /**
  * The review-and-confirm UI shared by:
@@ -187,13 +191,17 @@ export function DraftReviewForm({
           />
         </Field>
         <Field label="Currency">
-          <input
-            type="text"
-            maxLength={3}
+          <select
             value={form.currency}
-            onChange={(e) => update("currency", e.target.value.toUpperCase())}
-            className={cn(inputClass(), "uppercase")}
-          />
+            onChange={(e) => update("currency", e.target.value)}
+            className={inputClass()}
+          >
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.symbol} {c.code}
+              </option>
+            ))}
+          </select>
         </Field>
       </div>
 
@@ -340,7 +348,7 @@ function draftToForm(draft: DraftTransaction, fallbackCurrency: string): FormSta
       typeof draft.amount === "number" && !Number.isNaN(draft.amount)
         ? String(draft.amount)
         : "",
-    currency: (draft.currency || fallbackCurrency).toUpperCase(),
+    currency: normalizeCurrency(draft.currency, normalizeCurrency(fallbackCurrency)),
     category: draft.category || "",
     merchant: draft.merchant ?? "",
     description: draft.description ?? "",

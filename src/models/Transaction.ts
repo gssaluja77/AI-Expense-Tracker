@@ -10,7 +10,7 @@ import type {
 } from "@/types/transaction";
 
 /**
- * Transaction — the heart of AI-FinPilot.
+ * Transaction — the core money record for TrackFlow.
  *
  * Designed to simultaneously support every core feature:
  *   • Manual, NLP, OCR, import, and recurring-derived entries (`source`).

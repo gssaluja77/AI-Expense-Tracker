@@ -3,6 +3,8 @@ import { tool } from "ai";
 import { z } from "zod";
 import { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/db/mongodb";
+import { normalizeCurrency, type SupportedCurrencyCode } from "@/lib/constants/currencies";
+import { convertAmount } from "@/lib/fx/rates";
 import { Transaction } from "@/models/Transaction";
 import { Budget } from "@/models/Budget";
 import { DraftTransactionSchema } from "@/types/draft-transaction";
@@ -310,6 +312,49 @@ export function createChatTools({ appUserId, baseCurrency }: ChatToolsContext) {
       parameters: DraftTransactionSchema,
       // No `execute` — AI SDK forwards this call to the client, which
       // renders a review card and supplies the result via addToolResult().
+    }),
+
+    /* -------------------------- convertCurrency --------------------------- */
+    convertCurrency: tool({
+      description:
+        "Convert a numeric amount from the user's base currency into INR or USD " +
+        "using the app's exchange-rate service. Use when the user asks for figures " +
+        `in another currency (e.g. "show that in USD"). All other tools return ` +
+        `amounts in ${baseCurrency} first — call this after you have the base-currency ` +
+        "number you want to translate.",
+      parameters: z.object({
+        amount: z
+          .number()
+          .describe(
+            "Amount in the user's base currency (same units as query/summary tools)."
+          ),
+        toCurrency: z
+          .enum(["INR", "USD"])
+          .describe("Target ISO currency code."),
+      }),
+      execute: async ({ amount, toCurrency }) => {
+        const from = normalizeCurrency(baseCurrency) as SupportedCurrencyCode;
+        const to = toCurrency as SupportedCurrencyCode;
+        if (from === to) {
+          return {
+            fromCurrency: from,
+            toCurrency: to,
+            amount,
+            convertedAmount: Math.round(amount * 100) / 100,
+            rate: 1,
+          };
+        }
+        const { amount: converted, rate } = await convertAmount(amount, from, to);
+        return {
+          fromCurrency: from,
+          toCurrency: to,
+          amount,
+          convertedAmount: converted,
+          rate,
+          disclaimer:
+            "FX is for display; canonical stored totals remain in " + from + ".",
+        };
+      },
     }),
 
     /* -------------------------- getSpendingTotals -------------------------- */

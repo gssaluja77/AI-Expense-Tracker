@@ -55,15 +55,17 @@ export function BudgetsView({ budgets, defaultCurrency }: BudgetsViewProps) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Budgets</h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Category envelopes with live progress bars and spend alerts.
+            Set per-category spending limits and watch them update live as you
+            transact. We&apos;ll warn you before you overshoot and flag
+            anything that already has.
           </p>
         </div>
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+          className="inline-flex shrink-0 items-center justify-center gap-2 self-start whitespace-nowrap rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 shrink-0" />
           New budget
         </button>
       </header>

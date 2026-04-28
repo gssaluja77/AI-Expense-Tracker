@@ -4,6 +4,12 @@ import {
   parseTransactionFromImage,
   parseTransactionFromText,
 } from "@/lib/ai/parse-transaction";
+import {
+  PARSE_RATE_LIMIT_BUCKETS,
+  checkRateLimit,
+  rateLimitHeaders,
+  rateLimitMessage,
+} from "@/lib/cache/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,6 +39,14 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured." },
       { status: 503 }
+    );
+  }
+
+  const gate = await checkRateLimit(user.appUserId, PARSE_RATE_LIMIT_BUCKETS);
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: rateLimitMessage(gate) },
+      { status: 429, headers: rateLimitHeaders(gate) }
     );
   }
 
@@ -76,7 +90,7 @@ export async function POST(req: Request) {
         hint: hint || undefined,
       });
 
-      return NextResponse.json({ draft });
+      return NextResponse.json({ draft }, { headers: rateLimitHeaders(gate) });
     }
 
     if (contentType.includes("application/json")) {
@@ -89,7 +103,7 @@ export async function POST(req: Request) {
         );
       }
       const draft = await parseTransactionFromText(text, baseCurrency);
-      return NextResponse.json({ draft });
+      return NextResponse.json({ draft }, { headers: rateLimitHeaders(gate) });
     }
 
     return NextResponse.json(

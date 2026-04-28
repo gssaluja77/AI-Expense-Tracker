@@ -13,6 +13,13 @@ import {
   invalidateCache,
 } from "@/lib/cache/redis";
 import type { ConfirmedTransaction } from "@/types/draft-transaction";
+import {
+  DEFAULT_CURRENCY,
+  SUPPORTED_CURRENCY_CODES,
+  isSupportedCurrency,
+  type SupportedCurrencyCode,
+} from "@/lib/constants/currencies";
+import { convertAmount } from "@/lib/fx/rates";
 
 /**
  * Server Actions for the Transactions module.
@@ -26,7 +33,17 @@ import type { ConfirmedTransaction } from "@/types/draft-transaction";
  *   • Revalidates the `/dashboard/transactions` path so the list re-renders.
  */
 
-const CURRENCY_REGEX = /^[A-Z]{3}$/;
+const CurrencySchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .pipe(
+    z.enum(SUPPORTED_CURRENCY_CODES as [string, ...string[]], {
+      errorMap: () => ({
+        message: `Currency must be one of ${SUPPORTED_CURRENCY_CODES.join(", ")}.`,
+      }),
+    })
+  );
 
 const TransactionTypeSchema = z.enum(["expense", "income", "transfer"]);
 const PaymentMethodSchema = z
@@ -39,12 +56,7 @@ const BaseTransactionSchema = z.object({
     .coerce.number({ invalid_type_error: "Amount must be a number." })
     .positive("Amount must be greater than 0.")
     .max(1_000_000_000, "Amount is too large."),
-  currency: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .regex(CURRENCY_REGEX, "Currency must be a 3-letter ISO code.")
-    .default("INR"),
+  currency: CurrencySchema.default(DEFAULT_CURRENCY),
   category: z
     .string()
     .trim()
@@ -113,6 +125,26 @@ async function invalidateUserDashboardCaches(userId: string) {
   });
 }
 
+/**
+ * Resolve the base-currency amount + the FX rate captured for this
+ * transaction. Falls back to 1:1 if either side is somehow unsupported,
+ * so a save never fails purely because of currency metadata.
+ */
+async function resolveBaseAmount(
+  amount: number,
+  currency: string,
+  baseCurrency: string
+): Promise<{ baseAmount: number; exchangeRate: number; baseCurrency: SupportedCurrencyCode }> {
+  const safeBase: SupportedCurrencyCode = isSupportedCurrency(baseCurrency)
+    ? baseCurrency
+    : DEFAULT_CURRENCY;
+  if (!isSupportedCurrency(currency) || currency === safeBase) {
+    return { baseAmount: amount, exchangeRate: 1, baseCurrency: safeBase };
+  }
+  const { amount: converted, rate } = await convertAmount(amount, currency, safeBase);
+  return { baseAmount: converted, exchangeRate: rate, baseCurrency: safeBase };
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                   Create                                   */
 /* -------------------------------------------------------------------------- */
@@ -134,10 +166,11 @@ export async function createTransactionAction(
 
   await connectToDatabase();
 
-  const baseCurrency = user.baseCurrency || "INR";
-  // MVP: exchangeRate 1 until the multi-currency FX feature lands.
-  const exchangeRate = input.currency === baseCurrency ? 1 : 1;
-  const baseAmount = input.amount * exchangeRate;
+  const { baseAmount, exchangeRate, baseCurrency } = await resolveBaseAmount(
+    input.amount,
+    input.currency,
+    user.baseCurrency || DEFAULT_CURRENCY
+  );
 
   try {
     const doc = await Transaction.create({
@@ -176,7 +209,7 @@ export async function createTransactionAction(
 const ConfirmedDraftSchema = z.object({
   type: z.enum(["expense", "income", "transfer"]).default("expense"),
   amount: z.coerce.number().positive().max(1_000_000_000),
-  currency: z.string().trim().toUpperCase().regex(CURRENCY_REGEX).default("INR"),
+  currency: CurrencySchema.default(DEFAULT_CURRENCY),
   category: z.string().trim().min(1).max(60).default("Uncategorized"),
   merchant: z.string().trim().max(120).optional(),
   description: z.string().trim().max(280).optional(),
@@ -225,10 +258,11 @@ export async function createTransactionFromDraftAction(
 
   await connectToDatabase();
 
-  const baseCurrency = user.baseCurrency || "INR";
-  // MVP: exchangeRate 1 until the multi-currency FX feature lands.
-  const exchangeRate = 1;
-  const baseAmount = data.amount * exchangeRate;
+  const { baseAmount, exchangeRate, baseCurrency } = await resolveBaseAmount(
+    data.amount,
+    data.currency,
+    user.baseCurrency || DEFAULT_CURRENCY
+  );
 
   try {
     const doc = await Transaction.create({
@@ -295,9 +329,11 @@ export async function updateTransactionAction(
 
   await connectToDatabase();
 
-  const baseCurrency = user.baseCurrency || "INR";
-  const exchangeRate = input.currency === baseCurrency ? 1 : 1;
-  const baseAmount = input.amount * exchangeRate;
+  const { baseAmount, exchangeRate, baseCurrency } = await resolveBaseAmount(
+    input.amount,
+    input.currency,
+    user.baseCurrency || DEFAULT_CURRENCY
+  );
 
   const result = await Transaction.findOneAndUpdate(
     {

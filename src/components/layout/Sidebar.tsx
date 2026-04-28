@@ -30,11 +30,12 @@ export function Sidebar({ user }: SidebarProps) {
       </Link>
 
       <nav className="mt-8 flex flex-1 flex-col gap-1">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, activePath, label, icon: Icon }) => {
+          const match = activePath ?? href;
           const active =
-            href === "/dashboard"
-              ? pathname === href
-              : pathname.startsWith(href);
+            match === "/dashboard"
+              ? pathname === match
+              : pathname.startsWith(match);
           return (
             <Link
               key={href}

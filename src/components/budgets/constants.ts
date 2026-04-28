@@ -36,7 +36,7 @@ export const SUGGESTED_CATEGORIES = [
   "Other",
 ];
 
-export const COMMON_CURRENCIES = ["INR", "USD", "EUR", "GBP", "AED", "SGD", "AUD", "CAD", "JPY"];
+export { SUPPORTED_CURRENCIES, SUPPORTED_CURRENCY_CODES } from "@/lib/constants/currencies";
 
 export function formatMoney(
   amount: number,

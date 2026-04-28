@@ -87,13 +87,14 @@ export const isCacheEnabled = upstashConfigured;
 export const CACHE_TTL = {
   DASHBOARD: 60 * 5, // 5 min
   CATEGORY_TOTALS: 60 * 10, // 10 min
-  EXCHANGE_RATES: 60 * 60, // 1 h
   SESSION: 60 * 60 * 24, // 24 h
   AI_RESPONSE: 60 * 60, // 1 h
 } as const;
 
 /**
  * Namespaced cache key builder — avoids accidental collisions.
+ * FX rates intentionally skip Redis and use a process-local cache in
+ * `src/lib/fx/rates.ts`, so there's no key for them here.
  */
 export const cacheKey = {
   userProfile: (userId: string) => `user:${userId}:profile:v2`,
@@ -102,7 +103,6 @@ export const cacheKey = {
     `user:${userId}:cat-totals:${month}`,
   budgets: (userId: string) => `user:${userId}:budgets`,
   subscriptions: (userId: string) => `user:${userId}:subs`,
-  exchangeRate: (from: string, to: string) => `fx:${from}:${to}`,
   userScope: (userId: string) => `user:${userId}:*`,
 } as const;
 

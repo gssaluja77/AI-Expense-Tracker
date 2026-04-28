@@ -275,8 +275,13 @@ function DesktopRow({
               : "text-slate-600 dark:text-slate-300"
         )}
       >
-        {tx.type === "income" ? "+" : tx.type === "expense" ? "−" : ""}
-        {formatCurrency(tx.amount, tx.currency)}
+        <div className="flex flex-col items-end">
+          <span>
+            {tx.type === "income" ? "+" : tx.type === "expense" ? "−" : ""}
+            {formatCurrency(tx.amount, tx.currency)}
+          </span>
+          <BaseAmountHint tx={tx} />
+        </div>
       </td>
       <td className="whitespace-nowrap px-5 py-3 text-right">
         <div className="inline-flex items-center gap-1">
@@ -327,17 +332,20 @@ function MobileRow({
               {formatDate(tx.date)} · {tx.category}
             </p>
           </div>
-          <p
-            className={cn(
-              "whitespace-nowrap text-sm font-semibold tabular-nums",
-              tx.type === "income"
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-slate-900 dark:text-slate-200"
-            )}
-          >
-            {tx.type === "income" ? "+" : tx.type === "expense" ? "−" : ""}
-            {formatCurrency(tx.amount, tx.currency)}
-          </p>
+          <div className="flex flex-col items-end">
+            <p
+              className={cn(
+                "whitespace-nowrap text-sm font-semibold tabular-nums",
+                tx.type === "income"
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-slate-900 dark:text-slate-200"
+              )}
+            >
+              {tx.type === "income" ? "+" : tx.type === "expense" ? "−" : ""}
+              {formatCurrency(tx.amount, tx.currency)}
+            </p>
+            <BaseAmountHint tx={tx} />
+          </div>
         </div>
         <div className="mt-2 flex items-center gap-2">
           <button
@@ -391,6 +399,16 @@ function TypeBadge({ type }: { type: TransactionListItem["type"] }) {
       )}
     >
       {meta.label}
+    </span>
+  );
+}
+
+function BaseAmountHint({ tx }: { tx: TransactionListItem }) {
+  if (!tx.baseCurrency || tx.currency === tx.baseCurrency) return null;
+  if (!Number.isFinite(tx.baseAmount) || tx.baseAmount <= 0) return null;
+  return (
+    <span className="text-[11px] font-normal text-slate-500 tabular-nums dark:text-slate-400">
+      ≈ {formatCurrency(tx.baseAmount, tx.baseCurrency)}
     </span>
   );
 }

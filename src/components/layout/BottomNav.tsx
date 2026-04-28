@@ -14,11 +14,12 @@ export function BottomNav() {
       className="safe-area-bottom fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/90 backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-950/90"
     >
       <ul className="mx-auto flex max-w-screen-sm items-stretch justify-between px-2">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, activePath, label, icon: Icon }) => {
+          const match = activePath ?? href;
           const active =
-            href === "/dashboard"
-              ? pathname === href
-              : pathname.startsWith(href);
+            match === "/dashboard"
+              ? pathname === match
+              : pathname.startsWith(match);
           return (
             <li key={href} className="flex-1">
               <Link

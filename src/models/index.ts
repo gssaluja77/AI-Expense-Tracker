@@ -9,3 +9,5 @@ export { default as Transaction } from "./Transaction";
 export { default as Category } from "./Category";
 export { default as Budget } from "./Budget";
 export { default as Subscription } from "./Subscription";
+export { default as RateCounter } from "./RateCounter";
+export { default as ChatConversation } from "./ChatConversation";

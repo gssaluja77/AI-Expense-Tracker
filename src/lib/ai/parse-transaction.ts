@@ -2,6 +2,7 @@ import "server-only";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { DraftTransactionSchema, type DraftTransaction } from "@/types/draft-transaction";
+import { SUPPORTED_CURRENCY_CODES } from "@/lib/constants/currencies";
 
 /**
  * Gemini-backed parsers that turn free-form user input (natural-language
@@ -14,6 +15,7 @@ import { DraftTransactionSchema, type DraftTransaction } from "@/types/draft-tra
 const MODEL = () => process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 function systemPrompt(baseCurrency: string, today: string) {
+  const allowed = SUPPORTED_CURRENCY_CODES.join(" or ");
   return [
     `You extract structured transaction data for the TrackFlow expense tracker.`,
     `Today is ${today}. The user's base currency is ${baseCurrency}; when a receipt does not state a currency, assume ${baseCurrency}.`,
@@ -21,6 +23,7 @@ function systemPrompt(baseCurrency: string, today: string) {
     `Rules:`,
     `- Always populate type, amount, currency, category, and date. Choose "expense" unless the input clearly describes income or an account transfer.`,
     `- Use the receipt's GRAND TOTAL (after taxes / tips) as "amount", not a per-item price.`,
+    `- The "currency" field MUST be exactly one of: ${allowed}. If the source shows any other currency, pick the closest of these two and note the original in "notes".`,
     `- Pick a concise, conventional category (Food, Groceries, Transport, Rent, Utilities, Shopping, Electronics, Entertainment, Health, Travel, Subscriptions, Salary, Investments, Transfers, Uncategorized).`,
     `- Convert dates to ISO-8601 (YYYY-MM-DD). Use today if the input omits a date.`,
     `- If a payment method is visible (UPI, card last 4, cash…), fill paymentMethod.`,

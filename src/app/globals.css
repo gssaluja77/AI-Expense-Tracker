@@ -28,9 +28,11 @@ body {
 
 @layer utilities {
   .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .safe-area-top {
-    padding-top: env(safe-area-inset-top);
+    /* Legacy iOS + fallback so padding never collapses to invalid/0 when inset is missing */
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }

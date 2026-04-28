@@ -10,6 +10,10 @@ import {
   type ActionResult,
 } from "@/actions/transactions";
 import type { TransactionListItem } from "@/lib/transactions/queries";
+import {
+  SUPPORTED_CURRENCIES,
+  normalizeCurrency,
+} from "@/lib/constants/currencies";
 
 type PaymentMethod = NonNullable<TransactionListItem["paymentMethod"]>;
 type TxType = TransactionListItem["type"];
@@ -64,7 +68,10 @@ export function TransactionFormDialog({
   const defaults = {
     type: (transaction?.type ?? "expense") as TxType,
     amount: transaction?.amount?.toString() ?? "",
-    currency: transaction?.currency ?? baseCurrency,
+    currency: normalizeCurrency(
+      transaction?.currency ?? baseCurrency,
+      normalizeCurrency(baseCurrency)
+    ),
     category: transaction?.category ?? "",
     merchant: transaction?.merchant ?? "",
     description: transaction?.description ?? "",
@@ -148,14 +155,17 @@ export function TransactionFormDialog({
               />
             </Field>
             <Field label="Currency" error={fieldErrors.currency?.[0]}>
-              <input
+              <select
                 name="currency"
-                type="text"
-                maxLength={3}
                 defaultValue={defaults.currency}
-                className={cn(inputClass(!!fieldErrors.currency), "uppercase")}
-                placeholder="INR"
-              />
+                className={inputClass(!!fieldErrors.currency)}
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.symbol} {c.code}
+                  </option>
+                ))}
+              </select>
             </Field>
           </div>
 

@@ -10,11 +10,11 @@ import {
   type BudgetActionResult,
 } from "@/actions/budgets";
 import type { BudgetSummary } from "@/lib/budgets/queries";
+import { BUDGET_PERIODS, SUGGESTED_CATEGORIES } from "./constants";
 import {
-  BUDGET_PERIODS,
-  COMMON_CURRENCIES,
-  SUGGESTED_CATEGORIES,
-} from "./constants";
+  SUPPORTED_CURRENCIES,
+  normalizeCurrency,
+} from "@/lib/constants/currencies";
 
 interface BudgetFormDialogProps {
   open: boolean;
@@ -156,18 +156,20 @@ export function BudgetFormDialog({
             </Field>
 
             <Field label="Currency" error={fe.currency}>
-              <input
+              <select
                 name="currency"
-                list="budget-currency-options"
-                defaultValue={initial?.currency ?? defaultCurrency}
-                maxLength={3}
-                className={cn(inputClass(!!fe.currency), "uppercase")}
-              />
-              <datalist id="budget-currency-options">
-                {COMMON_CURRENCIES.map((c) => (
-                  <option key={c} value={c} />
+                defaultValue={normalizeCurrency(
+                  initial?.currency,
+                  normalizeCurrency(defaultCurrency)
+                )}
+                className={inputClass(!!fe.currency)}
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </Field>
           </div>
 
