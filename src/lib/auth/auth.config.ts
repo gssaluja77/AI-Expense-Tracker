@@ -10,9 +10,15 @@ import Facebook from "next-auth/providers/facebook";
  * `mongoose`, …). It is imported by `middleware.ts`, which runs in the
  * Edge Runtime. Adapter + DB wiring lives in `./config.ts` instead.
  */
+/** Auth.js reads `AUTH_SECRET`; many hosts still set legacy `NEXTAUTH_SECRET`. */
+const authSecret =
+  process.env.AUTH_SECRET?.trim() ||
+  process.env.NEXTAUTH_SECRET?.trim() ||
+  undefined;
+
 export const authConfig = {
   session: { strategy: "jwt" },
-  secret: process.env.AUTH_SECRET,
+  secret: authSecret,
   trustHost: true,
   pages: {
     signIn: "/login",
@@ -27,6 +33,14 @@ export const authConfig = {
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
+      // @auth/core's default is `scope: "email"` only — Facebook rejects that as an
+      // invalid scope unless `public_profile` is also requested (Login docs).
+      authorization: {
+        url: "https://www.facebook.com/v19.0/dialog/oauth",
+        params: {
+          scope: "public_profile,email",
+        },
+      },
     }),
   ],
   callbacks: {

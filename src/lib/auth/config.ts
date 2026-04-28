@@ -2,9 +2,13 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/db/client";
 import { authConfig } from "@/lib/auth/auth.config";
-import { warnIfOAuthOriginLikelyMisconfigured } from "@/lib/auth/oauth-env";
+import {
+  warnIfAuthSecretMissing,
+  warnIfOAuthOriginLikelyMisconfigured,
+} from "@/lib/auth/oauth-env";
 
 warnIfOAuthOriginLikelyMisconfigured();
+warnIfAuthSecretMissing();
 
 /**
  * Node-runtime NextAuth instance.

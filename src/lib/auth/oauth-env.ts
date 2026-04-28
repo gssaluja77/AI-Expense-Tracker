@@ -34,3 +34,21 @@ export function warnIfOAuthOriginLikelyMisconfigured(): void {
     `[auth] AUTH_URL (or NEXTAUTH_URL) is not set. Google/Facebook will often return redirect_uri_mismatch until it matches the live site URL. ${hint} Register callbacks: {AUTH_URL}/api/auth/callback/google and .../callback/facebook.`
   );
 }
+
+/**
+ * Missing `AUTH_SECRET` (and legacy `NEXTAUTH_SECRET`) causes Auth.js to fail
+ * OAuth callbacks with `?error=Configuration` on production.
+ */
+export function warnIfAuthSecretMissing(): void {
+  if (process.env.NODE_ENV !== "production") return;
+
+  const has =
+    Boolean(process.env.AUTH_SECRET?.trim()) ||
+    Boolean(process.env.NEXTAUTH_SECRET?.trim());
+  if (has) return;
+
+  // eslint-disable-next-line no-console
+  console.error(
+    "[auth] AUTH_SECRET is not set (NEXTAUTH_SECRET is also empty). OAuth will fail with error=Configuration. Run `npx auth secret` or set AUTH_SECRET in Vercel → Environment Variables."
+  );
+}

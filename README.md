@@ -56,7 +56,17 @@ Auth.js builds the OAuth **`redirect_uri`** from your public origin. If it does 
    Same rules as Google (localhost + each production / preview URL you use).
 4. In **Vercel** → Project → Settings → Environment Variables, set **`AUTH_URL`** for Production (and Preview if you test OAuth on preview URLs — each preview host needs its redirect URI added in both consoles, or use a stable preview domain).
 
-Facebook also needs **Facebook Login** enabled on the app and (for production) **HTTPS** redirect URIs except for `http://localhost`.
+Facebook also needs **Facebook Login** enabled on the app and (for production) **HTTPS** redirect URIs except for `http://localhost`. Under **App Review → Permissions and features**, ensure **email** and **public_profile** are allowed for your use case (standard Login); the app requests `public_profile,email`.
+
+### `?error=Configuration` after Google (500 on `/api/auth/error`)
+
+Almost always **missing `AUTH_SECRET`** on the server (Vercel env vars). Auth.js v5 expects **`AUTH_SECRET`**; if you only have the old name, add **`NEXTAUTH_SECRET`** with the same value — this repo falls back to it — or rename it to **`AUTH_SECRET`**. Generate one locally with:
+
+```bash
+npx auth secret
+```
+
+Then redeploy. Also confirm **`GOOGLE_CLIENT_ID`**, **`GOOGLE_CLIENT_SECRET`**, **`MONGODB_URI`**, and **`MONGODB_DB_NAME`** are set on Vercel (callback runs in Node and talks to MongoDB via the adapter).
 
 ## Project Structure
 
