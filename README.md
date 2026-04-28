@@ -43,6 +43,21 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Social sign-in (Google & Facebook)
+
+Auth.js builds the OAuth **`redirect_uri`** from your public origin. If it does not **exactly** match what you registered with Google or Meta, you will see **Error 400: redirect_uri_mismatch** (Google) or a similar error from Facebook.
+
+1. Set **`AUTH_URL`** (no trailing slash) to the same origin users use in the browser — for example `http://localhost:3000` locally and `https://your-app.vercel.app` (or your custom domain) on Vercel. You can use **`NEXTAUTH_URL`** instead; either works if set consistently.
+2. **Google Cloud Console** → APIs & Services → Credentials → your **Web** OAuth client → **Authorized redirect URIs**. Add every origin you use, each with this path:
+   - `{AUTH_URL}/api/auth/callback/google`  
+   Examples: `http://localhost:3000/api/auth/callback/google`, `https://your-app.vercel.app/api/auth/callback/google`. If you use another dev port, add that URI too.
+3. **Meta for Developers** → your app → **Facebook Login** → Settings → **Valid OAuth Redirect URIs**:
+   - `{AUTH_URL}/api/auth/callback/facebook`  
+   Same rules as Google (localhost + each production / preview URL you use).
+4. In **Vercel** → Project → Settings → Environment Variables, set **`AUTH_URL`** for Production (and Preview if you test OAuth on preview URLs — each preview host needs its redirect URI added in both consoles, or use a stable preview domain).
+
+Facebook also needs **Facebook Login** enabled on the app and (for production) **HTTPS** redirect URIs except for `http://localhost`.
+
 ## Project Structure
 
 ```
