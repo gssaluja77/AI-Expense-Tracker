@@ -13,6 +13,8 @@ if (!uri) {
 
 const options: MongoClientOptions = {
   maxPoolSize: 10,
+  /** Cold starts on Vercel can be slow; avoid failing OAuth callback before Atlas responds. */
+  serverSelectionTimeoutMS: 15_000,
 };
 
 declare global {

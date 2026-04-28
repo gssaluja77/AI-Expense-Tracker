@@ -15,6 +15,38 @@ export function normalizedAuthUrl(): string | undefined {
 }
 
 /**
+ * Trim trailing slashes and whitespace on AUTH_URL / NEXTAUTH_URL.
+ * If the URL contains a **path** (not `/`), NextAuth's env merge can set
+ * `basePath` to that path and break `/api/auth/*` — log loudly.
+ * Mutates `process.env` so `reqWithEnvURL` and provider redirects see clean values.
+ */
+export function sanitizeAuthUrlEnv(): void {
+  for (const key of ["AUTH_URL", "NEXTAUTH_URL"] as const) {
+    const raw = process.env[key];
+    if (typeof raw !== "string") continue;
+    const trimmed = raw.trim().replace(/\/+$/, "");
+    if (!trimmed) {
+      delete process.env[key];
+      continue;
+    }
+    process.env[key] = trimmed;
+
+    try {
+      const u = new URL(trimmed);
+      if (u.pathname !== "/") {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[auth] ${key} must be the site origin only (no path). Current pathname is "${u.pathname}". Use e.g. https://mytrackflow.vercel.app — OAuth will fail until fixed.`
+        );
+      }
+    } catch {
+      // eslint-disable-next-line no-console
+      console.error(`[auth] ${key} is not a valid URL: ${trimmed}`);
+    }
+  }
+}
+
+/**
  * Log once per server boot if production OAuth is likely misconfigured.
  * Safe to call from `src/lib/auth/config.ts` at module load.
  */

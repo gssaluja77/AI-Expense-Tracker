@@ -68,6 +68,8 @@ npx auth secret
 
 Then redeploy. Also confirm **`GOOGLE_CLIENT_ID`**, **`GOOGLE_CLIENT_SECRET`**, **`MONGODB_URI`**, and **`MONGODB_DB_NAME`** are set on Vercel (callback runs in Node and talks to MongoDB via the adapter).
 
+**Still `?error=Configuration` after that?** Auth.js intentionally hides most server failures behind that label. The real cause is in **Vercel → Deployment → Logs** (filter for `/api/auth/callback/google`). Typical causes: MongoDB **`MONGODB_URI`** / Atlas IP allowlist (`0.0.0.0/0` or Vercel), wrong **`MONGODB_DB_NAME`**, or stale **`AUTH_URL` with a path** (must be origin only, e.g. `https://mytrackflow.vercel.app` — not `…/dashboard`). Try clearing site **cookies** for your domain (bad `callbackUrl` cookie → `InvalidCallbackUrl` → also shown as Configuration). To log adapter steps, set **`AUTH_DEBUG=true`** in Vercel, redeploy, sign in once, then remove it.
+
 ## Project Structure
 
 ```
