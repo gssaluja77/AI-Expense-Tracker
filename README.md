@@ -43,33 +43,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Social sign-in (Google & Facebook)
-
-Auth.js builds the OAuth **`redirect_uri`** from your public origin. If it does not **exactly** match what you registered with Google or Meta, you will see **Error 400: redirect_uri_mismatch** (Google) or a similar error from Facebook.
-
-1. Set **`AUTH_URL`** (no trailing slash) to the same origin users use in the browser — for example `http://localhost:3000` locally and `https://your-app.vercel.app` (or your custom domain) on Vercel. You can use **`NEXTAUTH_URL`** instead; either works if set consistently.
-2. **Google Cloud Console** → APIs & Services → Credentials → your **Web** OAuth client → **Authorized redirect URIs**. Add every origin you use, each with this path:
-   - `{AUTH_URL}/api/auth/callback/google`  
-   Examples: `http://localhost:3000/api/auth/callback/google`, `https://your-app.vercel.app/api/auth/callback/google`. If you use another dev port, add that URI too.
-3. **Meta for Developers** → your app → **Facebook Login** → Settings → **Valid OAuth Redirect URIs**:
-   - `{AUTH_URL}/api/auth/callback/facebook`  
-   Same rules as Google (localhost + each production / preview URL you use).
-4. In **Vercel** → Project → Settings → Environment Variables, set **`AUTH_URL`** for Production (and Preview if you test OAuth on preview URLs — each preview host needs its redirect URI added in both consoles, or use a stable preview domain).
-
-Facebook also needs **Facebook Login** enabled on the app and (for production) **HTTPS** redirect URIs except for `http://localhost`. Under **App Review → Permissions and features**, ensure **email** and **public_profile** are allowed for your use case (standard Login); the app requests `public_profile,email`.
-
-### `?error=Configuration` after Google (500 on `/api/auth/error`)
-
-Almost always **missing `AUTH_SECRET`** on the server (Vercel env vars). Auth.js v5 expects **`AUTH_SECRET`**; if you only have the old name, add **`NEXTAUTH_SECRET`** with the same value — this repo falls back to it — or rename it to **`AUTH_SECRET`**. Generate one locally with:
-
-```bash
-npx auth secret
-```
-
-Then redeploy. Also confirm **`GOOGLE_CLIENT_ID`**, **`GOOGLE_CLIENT_SECRET`**, **`MONGODB_URI`**, and **`MONGODB_DB_NAME`** are set on Vercel (callback runs in Node and talks to MongoDB via the adapter).
-
-**Still `?error=Configuration` after that?** Auth.js intentionally hides most server failures behind that label. The real cause is in **Vercel → Deployment → Logs** (filter for `/api/auth/callback/google`). Typical causes: MongoDB **`MONGODB_URI`** / Atlas IP allowlist (`0.0.0.0/0` or Vercel), wrong **`MONGODB_DB_NAME`**, or stale **`AUTH_URL` with a path** (must be origin only, e.g. `https://mytrackflow.vercel.app` — not `…/dashboard`). Try clearing site **cookies** for your domain (bad `callbackUrl` cookie → `InvalidCallbackUrl` → also shown as Configuration). To log adapter steps, set **`AUTH_DEBUG=true`** in Vercel, redeploy, sign in once, then remove it.
-
 ## Project Structure
 
 ```

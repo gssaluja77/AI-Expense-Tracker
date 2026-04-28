@@ -14,23 +14,13 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  // App Router metadata routes (app/icon.svg, app/apple-icon.png, …) live at
-  // /icon, /apple-icon, etc. They must stay public — otherwise the browser’s
-  // favicon request hits auth and gets redirected, so the tab shows no logo.
-  const isMetadataRoute =
-    pathname === "/icon" ||
-    pathname === "/apple-icon" ||
-    pathname.startsWith("/icon/") ||
-    pathname.startsWith("/apple-icon/");
-
   const isPublic =
     pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/manifest") ||
     pathname.startsWith("/icons") ||
-    pathname.startsWith("/_next") ||
-    isMetadataRoute;
+    pathname.startsWith("/_next");
 
   if (isPublic) return;
 
@@ -43,7 +33,7 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    // Exclude static assets, PWA files, and App Router metadata image routes.
-    "/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|icons|sw.js|manifest.json).*)",
+    // Exclude static assets and PWA files.
+    "/((?!_next/static|_next/image|favicon.ico|icons|sw.js|manifest.json).*)",
   ],
 };

@@ -2,15 +2,6 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/db/client";
 import { authConfig } from "@/lib/auth/auth.config";
-import {
-  sanitizeAuthUrlEnv,
-  warnIfAuthSecretMissing,
-  warnIfOAuthOriginLikelyMisconfigured,
-} from "@/lib/auth/oauth-env";
-
-sanitizeAuthUrlEnv();
-warnIfOAuthOriginLikelyMisconfigured();
-warnIfAuthSecretMissing();
 
 /**
  * Node-runtime NextAuth instance.
@@ -32,10 +23,6 @@ declare module "next-auth" {
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
-  /** Pin route prefix — must match `src/app/api/auth/[...nextauth]/route.ts`. */
-  basePath: "/api/auth",
-  /** Set `AUTH_DEBUG=true` on Vercel to log OAuth/adapter steps (find real errors behind `error=Configuration`). */
-  debug: process.env.AUTH_DEBUG === "true",
   adapter: MongoDBAdapter(clientPromise, {
     databaseName: process.env.MONGODB_DB_NAME || "ai-finpilot",
   }),
