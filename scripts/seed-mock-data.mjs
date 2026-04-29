@@ -1,7 +1,12 @@
 // Seed demo transactions + budgets for a given user's email.
 //
-// Run with:
-//   node --env-file=.env scripts/seed-mock-data.mjs <email>
+// ⚠️  DISABLED BY DEFAULT.
+// This script is kept in-tree for future local testing only. New accounts
+// must NOT be seeded with mock data. To run it intentionally you must pass
+// the `--force` flag (or set `SEED_MOCK_FORCE=1`).
+//
+// Run with (intentional, e.g. for a dev/test account):
+//   node --env-file=.env scripts/seed-mock-data.mjs <email> --force
 //
 // If <email> is omitted the script picks the single `app_users` doc if
 // there's only one, otherwise errors out. Existing demo data
@@ -9,15 +14,32 @@
 // script is idempotent — run it as many times as you like.
 import { MongoClient, ObjectId } from "mongodb";
 
+const args = process.argv.slice(2);
+const forceFlag =
+  args.includes("--force") || process.env.SEED_MOCK_FORCE === "1";
+
+if (!forceFlag) {
+  console.error(
+    "seed-mock-data.mjs is disabled by default. New accounts should not be seeded with mock data."
+  );
+  console.error(
+    "If you really want to seed a dev/test account, re-run with --force:"
+  );
+  console.error(
+    "  node --env-file=.env scripts/seed-mock-data.mjs <email> --force"
+  );
+  process.exit(1);
+}
+
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB_NAME || "trackflow_db";
 
 if (!uri) {
-  console.error("MONGODB_URI not set. Run with: node --env-file=.env scripts/seed-mock-data.mjs");
+  console.error("MONGODB_URI not set. Run with: node --env-file=.env scripts/seed-mock-data.mjs <email> --force");
   process.exit(1);
 }
 
-const argEmail = process.argv[2]?.trim().toLowerCase();
+const argEmail = args.find((a) => !a.startsWith("--"))?.trim().toLowerCase();
 
 const TX_COUNT = 45;
 const MONTHS_BACK = 3;

@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
-import { TrackFlowLogo } from "@/components/brand/TrackFlowLogo";
 import {
   Sparkles,
   ScanText,
@@ -55,7 +55,15 @@ export default async function Home() {
     <main className="relative mx-auto max-w-6xl px-6 pb-16 pt-8">
       <header className="flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <TrackFlowLogo size={36} className="shrink-0 shadow-lg shadow-brand-600/30 rounded-xl" />
+          <Image
+            src="/trackflow-icon-1024.png"
+            alt="TrackFlow"
+            width={54}
+            height={36}
+            unoptimized
+            priority
+            className="shrink-0 rounded-xl shadow-lg shadow-brand-600/30"
+          />
           <span className="text-lg tracking-tight">TrackFlow</span>
         </Link>
         <div className="flex items-center gap-3">
@@ -107,3 +115,4 @@ export default async function Home() {
     </main>
   );
 }
+

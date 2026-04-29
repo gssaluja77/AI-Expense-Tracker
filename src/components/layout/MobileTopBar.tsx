@@ -46,7 +46,7 @@ export function MobileTopBar({ user }: MobileTopBarProps) {
       <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-800">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <TrackFlowLogo size={32} className="shrink-0 shadow shadow-brand-600/30 rounded-lg" />
+            <TrackFlowLogo size={30} className="shrink-0 shadow shadow-brand-600/30 rounded-lg" />
             <span className="text-base font-semibold tracking-tight">
               TrackFlow
             </span>
@@ -108,3 +108,4 @@ export function MobileTopBar({ user }: MobileTopBarProps) {
     </header>
   );
 }
+

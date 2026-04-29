@@ -15,7 +15,7 @@ export default function DataDeletionPage() {
     <div className="min-h-dvh bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-200">
       <header className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
         <Link href="/" className="inline-flex items-center gap-2 font-semibold">
-          <TrackFlowLogo size={32} className="shrink-0 rounded-lg" />
+          <TrackFlowLogo size={30} className="shrink-0 rounded-lg" />
           <span className="text-lg tracking-tight">{APP_NAME}</span>
         </Link>
       </header>
@@ -137,3 +137,4 @@ export default function DataDeletionPage() {
     </div>
   );
 }
+

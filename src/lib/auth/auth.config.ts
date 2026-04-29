@@ -27,6 +27,10 @@ export const authConfig = {
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
+      authorization: {
+        url: "https://www.facebook.com/v20.0/dialog/oauth",
+        params: { scope: "public_profile,email" },
+      },
     }),
   ],
   callbacks: {

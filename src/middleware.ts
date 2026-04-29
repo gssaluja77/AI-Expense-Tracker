@@ -35,7 +35,7 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    // Exclude static assets and PWA files.
-    "/((?!_next/static|_next/image|favicon.ico|icons|sw.js|manifest.json).*)",
+    // Exclude Next.js internals, PWA files, and all static asset file types.
+    "/((?!_next/static|_next/image|favicon.ico|icons|sw\\.js|manifest\\.json|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|eot)).*)",
   ],
 };

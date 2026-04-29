@@ -103,3 +103,4 @@ function UserAvatar({ user }: { user: SidebarProps["user"] }) {
     </span>
   );
 }
+
