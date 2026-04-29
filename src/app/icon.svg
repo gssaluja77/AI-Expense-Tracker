@@ -1,12 +1,13 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Blue rounded-square background -->
   <rect width="100" height="100" rx="22" fill="#1a73f5"/>
-  <text
-    x="50" y="68"
-    font-family="system-ui, -apple-system, sans-serif"
-    font-size="44"
-    font-weight="700"
-    fill="white"
-    text-anchor="middle"
-    letter-spacing="-1"
-  >TF</text>
+
+  <!-- Letter T: top bar + vertical stem, bold proportions matching font-size 44 font-weight 700 -->
+  <rect x="5"  y="22" width="40" height="10" rx="3" fill="white"/>
+  <rect x="20" y="22" width="10" height="56" rx="3" fill="white"/>
+
+  <!-- Letter F: vertical bar + top bar + mid bar, kerned close to T -->
+  <rect x="53" y="22" width="10" height="56" rx="3" fill="white"/>
+  <rect x="53" y="22" width="38" height="10" rx="3" fill="white"/>
+  <rect x="53" y="49" width="28" height="10" rx="3" fill="white"/>
 </svg>
