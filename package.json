@@ -4,7 +4,7 @@
   "private": true,
   "description": "TrackFlow - An AI-powered PWA expense tracker with NLP entry, receipt OCR, subscription detection, predictive bill alerts, RAG chat, and multi-currency support.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
