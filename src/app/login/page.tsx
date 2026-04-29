@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Waves } from "lucide-react";
+import { TrackFlowLogo } from "@/components/brand/TrackFlowLogo";
 import { auth } from "@/lib/auth/config";
 import { SocialButtons } from "@/components/auth/SocialButtons";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -23,9 +23,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className="relative flex min-h-dvh flex-col">
       <header className="flex items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-600/30">
-            <Waves className="h-5 w-5" />
-          </span>
+          <TrackFlowLogo size={36} className="shrink-0 shadow-lg shadow-brand-600/30 rounded-xl" />
           <span className="text-lg tracking-tight">TrackFlow</span>
         </Link>
         <ThemeToggle />

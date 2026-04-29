@@ -1,9 +1,14 @@
-import { signInWithFacebook, signInWithGoogle } from "@/actions/auth";
+"use client";
+
+import { useTransition } from "react";
+import { Loader2 } from "lucide-react";
+import { signInWithGoogle, signInWithFacebook } from "@/actions/auth";
+import { cn } from "@/lib/utils/cn";
 
 /**
- * Brand-marked social sign-in buttons. Each is a progressively-enhanced
- * <form> that invokes a Server Action — no client-side JS required for
- * the auth redirect dance.
+ * Brand-marked social sign-in buttons.
+ * Each button shows a spinner while the Server Action is in-flight so
+ * users get immediate feedback during the OAuth redirect.
  */
 
 interface SocialButtonsProps {
@@ -11,29 +16,57 @@ interface SocialButtonsProps {
 }
 
 export function SocialButtons({ callbackUrl = "/dashboard" }: SocialButtonsProps) {
+  const [googlePending, startGoogle] = useTransition();
+  const [facebookPending, startFacebook] = useTransition();
+
+  const handleGoogle = () => {
+    const fd = new FormData();
+    fd.set("callbackUrl", callbackUrl);
+    startGoogle(() => signInWithGoogle(fd));
+  };
+
+  const handleFacebook = () => {
+    const fd = new FormData();
+    fd.set("callbackUrl", callbackUrl);
+    startFacebook(() => signInWithFacebook(fd));
+  };
+
   return (
     <div className="flex flex-col gap-3">
-      <form action={signInWithGoogle}>
-        <input type="hidden" name="callbackUrl" value={callbackUrl} />
-        <button
-          type="submit"
-          className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-        >
+      <button
+        type="button"
+        onClick={handleGoogle}
+        disabled={googlePending || facebookPending}
+        className={cn(
+          "inline-flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm transition",
+          "hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70",
+          "dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        )}
+      >
+        {googlePending ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
           <GoogleIcon className="h-5 w-5" />
-          Continue with Google
-        </button>
-      </form>
+        )}
+        {googlePending ? "Redirecting…" : "Continue with Google"}
+      </button>
 
-      <form action={signInWithFacebook}>
-        <input type="hidden" name="callbackUrl" value={callbackUrl} />
-        <button
-          type="submit"
-          className="inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[#1877F2] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-110"
-        >
+      <button
+        type="button"
+        onClick={handleFacebook}
+        disabled={googlePending || facebookPending}
+        className={cn(
+          "inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[#1877F2] px-4 py-3 text-sm font-semibold text-white shadow-sm transition",
+          "hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+        )}
+      >
+        {facebookPending ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
           <FacebookIcon className="h-5 w-5" />
-          Continue with Facebook
-        </button>
-      </form>
+        )}
+        {facebookPending ? "Redirecting…" : "Continue with Facebook"}
+      </button>
     </div>
   );
 }

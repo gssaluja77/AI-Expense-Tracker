@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LogOut, Waves } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { TrackFlowLogo } from "@/components/brand/TrackFlowLogo";
 import { NAV_ITEMS } from "@/components/layout/nav-items";
 import { signOutAction } from "@/actions/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -23,9 +24,7 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-950 md:flex">
       <Link href="/dashboard" className="flex items-center gap-2 px-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-600/30">
-          <Waves className="h-5 w-5" />
-        </span>
+        <TrackFlowLogo size={36} className="shrink-0 shadow-lg shadow-brand-600/30 rounded-xl" />
         <span className="text-lg font-semibold tracking-tight">TrackFlow</span>
       </Link>
 

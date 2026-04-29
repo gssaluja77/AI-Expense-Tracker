@@ -1,6 +1,6 @@
 import "server-only";
 import { generateObject } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
 import { DraftTransactionSchema, type DraftTransaction } from "@/types/draft-transaction";
 import { SUPPORTED_CURRENCY_CODES } from "@/lib/constants/currencies";
 
@@ -12,9 +12,11 @@ import { SUPPORTED_CURRENCY_CODES } from "@/lib/constants/currencies";
  * that want to propose a draft without involving the chat model.
  */
 
-const MODEL = () => process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GEMINI_API_KEY = process.env.OPENROUTER_API_KEY;
-const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY });
+const MODEL = () => process.env.GEMINI_MODEL || "google/gemini-2.0-flash-001";
+const openrouter = createOpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
 function systemPrompt(baseCurrency: string, today: string) {
   const allowed = SUPPORTED_CURRENCY_CODES.join(" or ");
@@ -41,7 +43,7 @@ export async function parseTransactionFromText(
   const today = new Date().toISOString().slice(0, 10);
 
   const { object } = await generateObject({
-    model: google(MODEL()),
+    model: openrouter(MODEL()),
     schema: DraftTransactionSchema,
     system: systemPrompt(baseCurrency, today),
     prompt: `Extract a single transaction from this note:\n\n"""${text}"""`,
@@ -60,7 +62,7 @@ export async function parseTransactionFromImage(params: {
   const today = new Date().toISOString().slice(0, 10);
 
   const { object } = await generateObject({
-    model: google(MODEL()),
+    model: openrouter(MODEL()),
     schema: DraftTransactionSchema,
     system: systemPrompt(params.baseCurrency, today),
     temperature: 0.1,

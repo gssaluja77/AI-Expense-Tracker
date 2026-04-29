@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Waves } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { TrackFlowLogo } from "@/components/brand/TrackFlowLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { signOutAction } from "@/actions/auth";
 
@@ -45,9 +46,7 @@ export function MobileTopBar({ user }: MobileTopBarProps) {
       <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-800">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white shadow shadow-brand-600/30">
-              <Waves className="h-4 w-4" />
-            </span>
+            <TrackFlowLogo size={32} className="shrink-0 shadow shadow-brand-600/30 rounded-lg" />
             <span className="text-base font-semibold tracking-tight">
               TrackFlow
             </span>

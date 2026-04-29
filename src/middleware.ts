@@ -20,7 +20,9 @@ export default auth((req) => {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/manifest") ||
     pathname.startsWith("/icons") ||
-    pathname.startsWith("/_next");
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/data-deletion");
 
   if (isPublic) return;
 

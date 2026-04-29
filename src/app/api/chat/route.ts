@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { streamText, convertToCoreMessages, type Message } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createChatTools } from "@/lib/ai/tools";
 import {
@@ -18,7 +18,8 @@ export const dynamic = "force-dynamic";
  * free tier (`gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.0-flash`)
  * and paid / higher quota tiers without a code change.
  */
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+const GEMINI_MODEL =
+  process.env.GEMINI_MODEL || "google/gemini-2.0-flash-001";
 const GEMINI_API_KEY = process.env.OPENROUTER_API_KEY;
 
 /**
@@ -85,10 +86,13 @@ export async function POST(req: Request) {
     `- Never invent transactions, budgets, or categories in read-only answers. Never claim to have emailed / exported anything — you only have the listed tools.`,
   ].join("\n");
 
-  const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY });
+  const openrouter = createOpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: GEMINI_API_KEY,
+  });
 
   const result = streamText({
-    model: google(GEMINI_MODEL),
+    model: openrouter(GEMINI_MODEL),
     system,
     messages: convertToCoreMessages(messages),
     tools,

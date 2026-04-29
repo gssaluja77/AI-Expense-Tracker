@@ -11,15 +11,15 @@
   "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/trackflow-icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/trackflow-icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
@@ -28,13 +28,13 @@
       "name": "Add expense",
       "short_name": "Add",
       "url": "/dashboard?add=1",
-      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/trackflow-icon-1024.png", "sizes": "1024x1024", "type": "image/png" }]
     },
     {
       "name": "Chat",
       "short_name": "Chat",
       "url": "/dashboard/chat",
-      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/trackflow-icon-1024.png", "sizes": "1024x1024", "type": "image/png" }]
     }
   ]
 }
