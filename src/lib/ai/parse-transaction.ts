@@ -1,6 +1,6 @@
 import "server-only";
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { DraftTransactionSchema, type DraftTransaction } from "@/types/draft-transaction";
 import { SUPPORTED_CURRENCY_CODES } from "@/lib/constants/currencies";
 
@@ -13,6 +13,8 @@ import { SUPPORTED_CURRENCY_CODES } from "@/lib/constants/currencies";
  */
 
 const MODEL = () => process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_API_KEY = process.env.OPENROUTER_API_KEY;
+const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY });
 
 function systemPrompt(baseCurrency: string, today: string) {
   const allowed = SUPPORTED_CURRENCY_CODES.join(" or ");

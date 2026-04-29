@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { streamText, convertToCoreMessages, type Message } from "ai";
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createChatTools } from "@/lib/ai/tools";
 import {
@@ -18,7 +18,8 @@ export const dynamic = "force-dynamic";
  * free tier (`gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.0-flash`)
  * and paid / higher quota tiers without a code change.
  */
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+const GEMINI_API_KEY = process.env.OPENROUTER_API_KEY;
 
 /**
  * `POST /api/chat` — streams a Gemini 2.0 Flash response grounded in the
@@ -35,11 +36,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!GEMINI_API_KEY) {
     return NextResponse.json(
       {
-        error:
-          "GOOGLE_GENERATIVE_AI_API_KEY is not configured on the server.",
+        error: "OPENROUTER_API_KEY is not configured on the server.",
       },
       { status: 503 }
     );
@@ -84,6 +84,8 @@ export async function POST(req: Request) {
     `- If the user has no matching data, say so plainly and suggest what they could log to get answers next time.`,
     `- Never invent transactions, budgets, or categories in read-only answers. Never claim to have emailed / exported anything — you only have the listed tools.`,
   ].join("\n");
+
+  const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY });
 
   const result = streamText({
     model: google(GEMINI_MODEL),
