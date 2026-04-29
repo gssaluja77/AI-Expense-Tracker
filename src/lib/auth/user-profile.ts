@@ -129,37 +129,30 @@ async function loadOrCreateProfile(
 ): Promise<CachedUserProfile> {
   await connectToDatabase();
 
-  const existing = await User.findOne({ email: identity.email }).lean();
-
-  if (existing) {
-    return {
-      id: identity.id,
-      appUserId: existing._id.toString(),
-      email: identity.email,
-      name: existing.name ?? identity.name,
-      image: existing.image ?? identity.image,
-      baseCurrency: existing.baseCurrency,
-      locale: existing.locale,
-      timeZone: existing.timeZone,
-      preferences: { ...existing.preferences },
-    };
-  }
-
-  const created = await User.create({
-    email: identity.email,
-    name: identity.name ?? undefined,
-    image: identity.image ?? undefined,
-  });
+  // Atomic upsert — safe against concurrent first-sign-in requests that would
+  // otherwise both pass a findOne→null check and race to insert, creating
+  // duplicate app_users documents. $setOnInsert only fires when a new doc is
+  // created, so subsequent logins never overwrite the user's saved preferences.
+  const doc = await User.findOneAndUpdate(
+    { email: identity.email },
+    {
+      $setOnInsert: {
+        name: identity.name ?? undefined,
+        image: identity.image ?? undefined,
+      },
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  ).lean();
 
   return {
     id: identity.id,
-    appUserId: created._id.toString(),
+    appUserId: doc!._id.toString(),
     email: identity.email,
-    name: created.name ?? null,
-    image: created.image ?? null,
-    baseCurrency: created.baseCurrency,
-    locale: created.locale,
-    timeZone: created.timeZone,
-    preferences: { ...created.preferences },
+    name: doc!.name ?? identity.name,
+    image: doc!.image ?? identity.image,
+    baseCurrency: doc!.baseCurrency,
+    locale: doc!.locale,
+    timeZone: doc!.timeZone,
+    preferences: { ...doc!.preferences },
   };
 }
