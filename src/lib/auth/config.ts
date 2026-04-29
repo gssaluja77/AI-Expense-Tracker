@@ -24,6 +24,6 @@ declare module "next-auth" {
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: MongoDBAdapter(clientPromise, {
-    databaseName: process.env.MONGODB_DB_NAME || "ai-finpilot",
+    databaseName: process.env.MONGODB_DB_NAME || "trackflow_db",
   }),
 });

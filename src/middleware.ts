@@ -22,7 +22,9 @@ export default auth((req) => {
     pathname.startsWith("/icons") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/privacy") ||
-    pathname.startsWith("/data-deletion");
+    pathname.startsWith("/data-deletion") ||
+    // Static assets (images, fonts, etc.) — always public
+    /\.(?:png|jpe?g|gif|svg|ico|webp|woff2?|ttf|eot)$/i.test(pathname);
 
   if (isPublic) return;
 
@@ -35,7 +37,8 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    // Exclude Next.js internals, PWA files, and all static asset file types.
-    "/((?!_next/static|_next/image|favicon.ico|icons|sw\\.js|manifest\\.json|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|eot)).*)",
+    // Exclude Next.js internals and known static files.
+    // Static asset extensions are handled via the isPublic check above.
+    "/((?!_next/static|_next/image|favicon.ico|icons|sw.js|manifest.json).*)",
   ],
 };
